@@ -50,7 +50,7 @@ namespace OpenAPIs.Client.Console
                 {
                     break;
                 }
-                WriteLine("Would you like to make another choice? ([y]/n)\n» ");
+                Write("Would you like to make another choice? ([y]/n)\n» ");
                 string continueInput = ReadLine();
                 if (continueInput.StartsWith("n", ignoreCase: true, culture: null))
                 {
