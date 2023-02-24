@@ -11,6 +11,22 @@ namespace OpenAPIs.Client.Console.Business.Zippopotamus
     {
         /// <summary>
         /// Queries the Zippopotamus API by <paramref
+        /// name="countryAbbreviation">country</paramref>, <paramref
+        /// name="stateAbbreviation">state</paramref> and <paramref
+        /// name="postcode">postcode</paramref>.
+        /// </summary>
+        /// <returns>
+        /// A <see cref="PlacenameResultModel">result object</see> with the matching <see
+        /// cref="PlacenameResultPlace">place</see>s.
+        /// </returns>
+        Task<PlacenameResultModel> QueryPlacenameAsync(
+            string countryAbbreviation,
+            string stateAbbreviation,
+            string placename
+        );
+
+        /// <summary>
+        /// Queries the Zippopotamus API by <paramref
         /// name="countryAbbreviation">country</paramref> and <paramref
         /// name="postcode">postcode</paramref>.
         /// </summary>
@@ -20,22 +36,9 @@ namespace OpenAPIs.Client.Console.Business.Zippopotamus
         /// A <see cref="PostcodeResultModel">result object</see> with the matching <see
         /// cref="PostcodeResultPlace">place</see>s.
         /// </returns>
-        Task<PostcodeResultModel> QueryPostcode(string countryAbbreviation, string postcode);
-
-        /// <summary>
-        /// Queries the Zippopotamus API by <paramref
-        /// name="countryAbbreviation">country</paramref>, <paramref
-        /// name="stateAbbreviation">state</paramref> and <paramref
-        /// name="postcode">postcode</paramref>.
-        /// </summary>
-        /// <returns>
-        /// A <see cref="PlacenameResultModel">result object</see> with the matching <see
-        /// cref="PlacenameResultPlace">place</see>s.
-        /// </returns>
-        Task<PlacenameResultModel> QueryPlacename(
+        Task<PostcodeResultModel> QueryPostcodeAsync(
             string countryAbbreviation,
-            string stateAbbreviation,
-            string placename
+            string postcode
         );
     }
 }

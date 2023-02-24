@@ -3,7 +3,8 @@
 namespace OpenAPIs.Client.Console.Models.Zippopotamus
 {
     /// <summary>
-    /// Represents the results of a <see cref="Business.Zippopotamus.IZippopotamusBL.QueryPostcode">query by country
+    /// Represents the results of a
+    /// <see cref="Business.Zippopotamus.IZippopotamusBL.QueryPostcodeAsync">query by country
     /// and postcode</see>.
     /// </summary>
     public class PostcodeResultModel
@@ -12,10 +13,10 @@ namespace OpenAPIs.Client.Console.Models.Zippopotamus
 
         [JsonProperty("country abbreviation")]
         public string CountryAbbreviation { get; set; }
+        public PostcodeResultPlace[] Places { get; set; }
 
         [JsonProperty("post code")]
         public string Postcode { get; set; }
-        public PostcodeResultPlace[] Places { get; set; }
     }
 
     /// <summary>
@@ -23,10 +24,11 @@ namespace OpenAPIs.Client.Console.Models.Zippopotamus
     /// </summary>
     public class PostcodeResultPlace
     {
-        [JsonProperty("place name")]
-        public string Placename { get; set; }
         public double? Latitude { get; set; }
         public double? Longitude { get; set; }
+
+        [JsonProperty("place name")]
+        public string Placename { get; set; }
 
         public string State { get; set; }
 

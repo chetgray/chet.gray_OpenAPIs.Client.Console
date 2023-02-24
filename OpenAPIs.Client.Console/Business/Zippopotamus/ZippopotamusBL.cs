@@ -38,30 +38,7 @@ namespace OpenAPIs.Client.Console.Business.Zippopotamus
                 MissingMemberHandling = MissingMemberHandling.Ignore,
             };
 
-        public async Task<PostcodeResultModel> QueryPostcode(
-            string countryAbbreviation,
-            string postcode
-        )
-        {
-            Uri queryUri = new Uri(BaseUri, $"{countryAbbreviation}/{postcode}");
-            using (HttpResponseMessage response = await _apiClient.GetAsync(queryUri))
-            {
-                if (!response.IsSuccessStatusCode)
-                {
-                    throw new HttpRequestException(
-                        $"Error {response.StatusCode}: {response.ReasonPhrase}"
-                    );
-                }
-                string responseJson = await response.Content.ReadAsStringAsync();
-                PostcodeResultModel result = JsonConvert.DeserializeObject<PostcodeResultModel>(
-                    responseJson,
-                    SerializerSettings
-                );
-                return result;
-            }
-        }
-
-        public async Task<PlacenameResultModel> QueryPlacename(
+        public async Task<PlacenameResultModel> QueryPlacenameAsync(
             string countryAbbreviation,
             string stateAbbreviation,
             string placename
@@ -86,6 +63,29 @@ namespace OpenAPIs.Client.Console.Business.Zippopotamus
                         responseJson,
                         SerializerSettings
                     );
+                return result;
+            }
+        }
+
+        public async Task<PostcodeResultModel> QueryPostcodeAsync(
+            string countryAbbreviation,
+            string postcode
+        )
+        {
+            Uri queryUri = new Uri(BaseUri, $"{countryAbbreviation}/{postcode}");
+            using (HttpResponseMessage response = await _apiClient.GetAsync(queryUri))
+            {
+                if (!response.IsSuccessStatusCode)
+                {
+                    throw new HttpRequestException(
+                        $"Error {response.StatusCode}: {response.ReasonPhrase}"
+                    );
+                }
+                string responseJson = await response.Content.ReadAsStringAsync();
+                PostcodeResultModel result = JsonConvert.DeserializeObject<PostcodeResultModel>(
+                    responseJson,
+                    SerializerSettings
+                );
                 return result;
             }
         }
