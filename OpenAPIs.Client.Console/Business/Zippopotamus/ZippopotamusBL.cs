@@ -53,7 +53,8 @@ namespace OpenAPIs.Client.Console.Business.Zippopotamus
                 if (!response.IsSuccessStatusCode)
                 {
                     throw new HttpRequestException(
-                        $"Error {response.StatusCode}: {response.ReasonPhrase}"
+                        "Response status code does not indicate success: "
+                            + $"{(int)response.StatusCode} ({response.ReasonPhrase})."
                     );
                 }
                 string responseJson = await response.Content.ReadAsStringAsync();
@@ -77,7 +78,8 @@ namespace OpenAPIs.Client.Console.Business.Zippopotamus
                 if (!response.IsSuccessStatusCode)
                 {
                     throw new HttpRequestException(
-                        $"Error {response.StatusCode}: {response.ReasonPhrase}"
+                        "Response status code does not indicate success: "
+                            + $"{(int)response.StatusCode} ({response.ReasonPhrase})."
                     );
                 }
                 string responseJson = await response.Content.ReadAsStringAsync();
