@@ -50,7 +50,6 @@ namespace OpenAPIs.Client.Console.Business.Zippopotamus
             );
             using (HttpResponseMessage response = await _apiClient.GetAsync(queryUri))
             {
-                response.EnsureSuccessStatusCode();
                 if (!response.IsSuccessStatusCode)
                 {
                     throw new HttpRequestException(
