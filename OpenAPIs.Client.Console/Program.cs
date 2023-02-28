@@ -49,10 +49,18 @@ namespace OpenAPIs.Client.Console
         /// </summary>
         private static void LookUpPlacesByPostCode(IZippopotamusBL bl)
         {
-            Write("Enter a country code (e.g. GB, US, DE, etc.)\n» ");
-            string countryInput = ReadLine();
-            Write("Enter a postal code\n» ");
-            string postcodeInput = ReadLine();
+            string countryInput = null;
+            while (string.IsNullOrWhiteSpace(countryInput))
+            {
+                Write("Enter a country code (e.g. GB, US, DE, etc.)\n» ");
+                countryInput = ReadLine();
+            }
+            string postcodeInput = null;
+            while (string.IsNullOrWhiteSpace(postcodeInput))
+            {
+                Write("Enter a postal code\n» ");
+                postcodeInput = ReadLine();
+            }
             WriteLine();
 
             PostcodeResultModel postcodeResult;
@@ -88,19 +96,31 @@ namespace OpenAPIs.Client.Console
         /// </summary>
         private static void LookUpPostCodesByPlaceName(IZippopotamusBL bl)
         {
-            Write("Enter a country code (e.g. GB, US, DE, etc.)\n» ");
-            string countryInput2 = ReadLine();
-            Write("Enter a state/province abbreviation\n» ");
-            string stateInput = ReadLine();
-            Write("Enter a place name\n» ");
-            string placenameInput = ReadLine();
+            string countryInput = null;
+            while (string.IsNullOrWhiteSpace(countryInput))
+            {
+                Write("Enter a country code (e.g. GB, US, DE, etc.)\n» ");
+                countryInput = ReadLine();
+            }
+            string stateInput = null;
+            while (string.IsNullOrWhiteSpace(stateInput))
+            {
+                Write("Enter a state/province abbreviation\n» ");
+                stateInput = ReadLine();
+            }
+            string placenameInput = null;
+            while (string.IsNullOrWhiteSpace(placenameInput))
+            {
+                Write("Enter a place name\n» ");
+                placenameInput = ReadLine();
+            }
             WriteLine();
 
             PlacenameResultModel placenameResult;
             try
             {
                 placenameResult = bl.QueryPlacenameAsync(
-                    countryInput2,
+                    countryInput,
                     stateInput,
                     placenameInput
                 ).Result;
