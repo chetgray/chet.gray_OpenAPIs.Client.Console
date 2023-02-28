@@ -10,6 +10,33 @@ namespace OpenAPIs.Client.Console
 {
     internal static class Program
     {
+        /// <summary>
+        /// Handles exceptions thrown by the API BL classes.
+        /// </summary>
+        /// <param name="ex">The exception to handle.</param>
+        /// <returns>
+        /// <see langword="true">true</see> if the exception was handled; otherwise, <see
+        /// langword="false">false</see>.
+        /// </returns>
+        /// <remarks>
+        /// This method is passed as a predicate to <see
+        /// cref="AggregateException.Handle">AggregateException.Handle</see>. For <see
+        /// cref="HttpRequestException">HttpRequestException</see>s, it writes the <see
+        /// cref="Exception.Message">message</see> to the console. Other <see
+        /// cref="Exception">exception</see>s are not handled.
+        /// </remarks>
+        private static bool HandleApiExceptions(Exception ex)
+        {
+            if (ex is HttpRequestException)
+            {
+                WriteLine($"ERROR: {ex.Message}");
+            }
+            return ex is HttpRequestException;
+        }
+
+        /// <summary>
+        /// The entry point of the application.
+        /// </summary>
         private static void Main()
         {
             ApiHelper.InitializeClient();
@@ -51,16 +78,7 @@ namespace OpenAPIs.Client.Console
                         }
                         catch (AggregateException aggEx)
                         {
-                            aggEx
-                                .Flatten()
-                                .Handle(e =>
-                                {
-                                    if (e is HttpRequestException)
-                                    {
-                                        WriteLine($"ERROR: {e.Message}");
-                                    }
-                                    return e is HttpRequestException;
-                                });
+                            aggEx.Flatten().Handle(HandleApiExceptions);
                             break;
                         }
                         WriteLine(
@@ -98,16 +116,7 @@ namespace OpenAPIs.Client.Console
                         }
                         catch (AggregateException aggEx)
                         {
-                            aggEx
-                                .Flatten()
-                                .Handle(e =>
-                                {
-                                    if (e is HttpRequestException)
-                                    {
-                                        WriteLine($"ERROR: {e.Message}");
-                                    }
-                                    return e is HttpRequestException;
-                                });
+                            aggEx.Flatten().Handle(HandleApiExceptions);
                             break;
                         }
                         WriteLine(
