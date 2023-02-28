@@ -38,6 +38,7 @@ namespace OpenAPIs.Client.Console.Business.Zippopotamus
                 MissingMemberHandling = MissingMemberHandling.Ignore,
             };
 
+        /// <inheritdoc/>
         public async Task<PlacenameResultModel> QueryPlacenameAsync(
             string countryAbbreviation,
             string stateAbbreviation,
@@ -67,6 +68,7 @@ namespace OpenAPIs.Client.Console.Business.Zippopotamus
             }
         }
 
+        /// <inheritdoc/>
         public async Task<PostcodeResultModel> QueryPostcodeAsync(
             string countryAbbreviation,
             string postcode

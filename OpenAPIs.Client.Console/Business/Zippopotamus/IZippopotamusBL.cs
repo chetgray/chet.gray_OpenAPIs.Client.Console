@@ -17,8 +17,9 @@ namespace OpenAPIs.Client.Console.Business.Zippopotamus
         /// name="postcode">postcode</paramref>.
         /// </summary>
         /// <returns>
-        /// A <see cref="PlacenameResultModel">result object</see> with the matching <see
-        /// cref="PlacenameResultPlace">place</see>s.
+        /// The <see cref="Task{PlacenameResultModel}">task object</see> representing the
+        /// asynchronous operation, returning a <see cref="PlacenameResultModel">result
+        /// object</see> with the matching <see cref="PlacenameResultPlace">place</see>s.
         /// </returns>
         /// <exception cref="HttpRequestException">
         /// The <see cref="HttpResponseMessage">HTTP response</see> <see
@@ -38,8 +39,9 @@ namespace OpenAPIs.Client.Console.Business.Zippopotamus
         /// <param name="countryAbbreviation"></param>
         /// <param name="postcode"></param>
         /// <returns>
-        /// A <see cref="PostcodeResultModel">result object</see> with the matching <see
-        /// cref="PostcodeResultPlace">place</see>s.
+        /// The <see cref="Task{PlacenameResultModel}">task object</see> representing the
+        /// asynchronous operation, returning a <see cref="PostcodeResultModel">result
+        /// object</see> with the matching <see cref="PostcodeResultPlace">place</see>s.
         /// </returns>
         /// <exception cref="HttpRequestException">
         /// The <see cref="HttpResponseMessage">HTTP response</see> <see
