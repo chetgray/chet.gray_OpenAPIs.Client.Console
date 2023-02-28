@@ -19,8 +19,9 @@ namespace OpenAPIs.Client.Console
             while (shouldContinue)
             {
                 WriteLine(
-                    "[1] Lookup place by post code\n"
-                        + "[2] Look up post codes by place\n"
+                    "Available API query options:\n"
+                        + "[1] Look up place by post code\n"
+                        + "[2] Look up post codes by place name\n"
                         + "[3] \n"
                         + "[4] \n"
                         + "[5] \n"
@@ -28,14 +29,16 @@ namespace OpenAPIs.Client.Console
                 );
                 Write("Which API would you like to call?\n» ");
                 string menuInput = ReadLine();
+                WriteLine();
+
                 string countryInput;
                 switch (menuInput)
                 {
                     case "1":
                         // Look up place by post code
-                        Write("Enter a country code (e.g. GB, US, DE, etc.)\n» ");
+                        Write("Enter a country code (e.g. GB, US, DE, etc.):\n» ");
                         countryInput = ReadLine();
-                        Write("Enter a postal code\n» ");
+                        Write("Enter a postal code:\n» ");
                         string postcodeInput = ReadLine();
                         WriteLine();
 
@@ -62,26 +65,27 @@ namespace OpenAPIs.Client.Console
                         }
                         WriteLine(
                             $"Country:   {postcodeResult.Country} ({postcodeResult.CountryAbbreviation})\n"
-                                + $"Post code: {postcodeResult.Postcode}\n"
+                                + $"Post code: {postcodeResult.Postcode}"
                         );
                         foreach (PostcodeResultPlace place in postcodeResult.Places)
                         {
                             WriteLine(
-                                $"Place name:    {place.Placename}\n"
+                                "\n"
+                                    + $"Place name:    {place.Placename}\n"
                                     + $"    State:     {place.State} ({place.StateAbbreviation})\n"
                                     + $"    Latitude:  {place.Latitude}\n"
-                                    + $"    Longitude: {place.Longitude}\n"
+                                    + $"    Longitude: {place.Longitude}"
                             );
                         }
                         break;
 
                     case "2":
                         // Look up post codes by place name
-                        Write("Enter a country code (e.g. GB, US, DE, etc.)\n» ");
+                        Write("Enter a country code (e.g. GB, US, DE, etc.):\n» ");
                         countryInput = ReadLine();
-                        Write("Enter a state/province abbreviation\n» ");
+                        Write("Enter a state/province abbreviation:\n» ");
                         string stateInput = ReadLine();
-                        Write("Enter a place name\n» ");
+                        Write("Enter a place name:\n» ");
                         string placenameInput = ReadLine();
                         WriteLine();
 
@@ -108,15 +112,16 @@ namespace OpenAPIs.Client.Console
                         }
                         WriteLine(
                             $"Country: {placenameResult.Country} ({placenameResult.CountryAbbreviation})\n"
-                                + $"State:   {placenameResult.State} ({placenameResult.StateAbbreviation})\n"
+                                + $"State:   {placenameResult.State} ({placenameResult.StateAbbreviation})"
                         );
                         foreach (PlacenameResultPlace place in placenameResult.Places)
                         {
                             WriteLine(
-                                $"Postal code:    {place.Postcode}\n"
+                                "\n"
+                                    + $"Postal code:    {place.Postcode}\n"
                                     + $"    Place name: {place.Placename}\n"
                                     + $"    Latitude:   {place.Latitude}\n"
-                                    + $"    Longitude:  {place.Longitude}\n"
+                                    + $"    Longitude:  {place.Longitude}"
                             );
                         }
                         break;
@@ -142,14 +147,19 @@ namespace OpenAPIs.Client.Console
                 {
                     break;
                 }
+                WriteLine();
+
                 Write("Would you like to make another choice? ([y]/n)\n» ");
                 string continueInput = ReadLine();
+                WriteLine();
+
                 if (continueInput.StartsWith("n", ignoreCase: true, culture: null))
                 {
                     shouldContinue = false;
                 }
             }
-            WriteLine("\nGoodbye!\n");
+            WriteLine("Goodbye!\n");
+
             WriteLine("Press any key to exit . . . ");
             ReadKey(intercept: true);
         }
