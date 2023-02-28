@@ -47,8 +47,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ApiHelper.cs" />
+    <Compile Include="Business\SunriseSunset\ISunriseSunsetBL.cs" />
+    <Compile Include="Business\SunriseSunset\SunriseSunsetBL.cs" />
     <Compile Include="Business\Zippopotamus\IZippopotamusBL.cs" />
     <Compile Include="Business\Zippopotamus\ZippopotamusBL.cs" />
+    <Compile Include="Models\SunriseSunset\SunriseSunsetResultModel.cs" />
     <Compile Include="Models\Zippopotamus\PlacenameResultModel.cs" />
     <Compile Include="Models\Zippopotamus\PostcodeResultModel.cs" />
     <Compile Include="Program.cs" />

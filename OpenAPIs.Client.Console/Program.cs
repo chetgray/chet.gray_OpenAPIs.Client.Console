@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Net.Http;
 
+using OpenAPIs.Client.Console.Business.SunriseSunset;
 using OpenAPIs.Client.Console.Business.Zippopotamus;
+using OpenAPIs.Client.Console.Models.SunriseSunset;
 using OpenAPIs.Client.Console.Models.Zippopotamus;
 
 using static System.Console;
@@ -10,6 +12,9 @@ namespace OpenAPIs.Client.Console
 {
     internal static class Program
     {
+        private static readonly ISunriseSunsetBL _sunriseSunsetBL = new SunriseSunsetBL(
+            ApiHelper.ApiClient
+        );
         private static readonly IZippopotamusBL _zippopotamusBL = new ZippopotamusBL(
             ApiHelper.ApiClient
         );
@@ -122,6 +127,110 @@ namespace OpenAPIs.Client.Console
         }
 
         /// <summary>
+        /// Prompts the user to enter a latitude, a longitude, an optional date, and an
+        /// optional time zone, then queries the Sunrise Sunset API for the corresponding
+        /// sunrise and sunset times and writes them to the console.
+        /// </summary>
+        private static void LookUpSunriseSunset(ISunriseSunsetBL sunriseSunsetBL)
+        {
+            Write("Enter a latitude:\n» ");
+            double latitude;
+            while (!double.TryParse(ReadLine(), out latitude))
+            {
+                WriteLine("ERROR: Invalid latitude format.");
+                Write("Enter a latitude:\n» ");
+            }
+            Write("Enter a longitude:\n» ");
+            double longitude;
+            while (!double.TryParse(ReadLine(), out longitude))
+            {
+                WriteLine("ERROR: Invalid longitude format.");
+                Write("Enter a longitude:\n» ");
+            }
+            string date = null;
+            bool isValidDate = false;
+            while (!isValidDate)
+            {
+                Write(
+                    "(Optional) Enter a date, or \"today\" or \"tomorrow\" (default is today):\n» "
+                );
+                string dateInput = ReadLine();
+                if (string.IsNullOrWhiteSpace(dateInput))
+                {
+                    isValidDate = true;
+                }
+                else if (
+                    dateInput.Equals("today", StringComparison.OrdinalIgnoreCase)
+                    || dateInput.Equals("tomorrow", StringComparison.OrdinalIgnoreCase)
+                )
+                {
+                    date = dateInput;
+                    isValidDate = true;
+                }
+                else if (DateTime.TryParse(dateInput, out DateTime dateValue))
+                {
+                    date = dateValue.ToString("yyyy-MM-dd");
+                    isValidDate = true;
+                }
+                else
+                {
+                    WriteLine("ERROR: Invalid date format.");
+                }
+            }
+            TimeZoneInfo timeZone = null;
+            bool isValidTimeZone = false;
+            while (!isValidTimeZone)
+            {
+                Write(
+                    "(Optional) Enter a time zone (default is the location's time zone):\n» "
+                );
+                string timeZoneInput = ReadLine();
+                if (string.IsNullOrWhiteSpace(timeZoneInput))
+                {
+                    isValidTimeZone = true;
+                }
+                else
+                {
+                    try
+                    {
+                        timeZone = TimeZoneInfo.FindSystemTimeZoneById(timeZoneInput);
+                        isValidTimeZone = true;
+                    }
+                    catch (TimeZoneNotFoundException ex)
+                    {
+                        WriteLine($"ERROR: {ex.Message}");
+                    }
+                }
+            }
+            WriteLine();
+
+            SunriseSunsetResultModel sunriseSunsetResult;
+            try
+            {
+                sunriseSunsetResult = sunriseSunsetBL
+                    .QuerySunriseSunsetAsync(latitude, longitude, date, timeZone)
+                    .Result;
+            }
+            catch (AggregateException aggEx)
+            {
+                aggEx.Flatten().Handle(HandleApiExceptions);
+                return;
+            }
+            WriteLine(
+                $"Sunrise:     {sunriseSunsetResult.Results.Sunrise:T}\n"
+                    + $"Sunset:      {sunriseSunsetResult.Results.Sunset:T}\n"
+                    + $"First Light: {sunriseSunsetResult.Results.FirstLight:T}\n"
+                    + $"Last Light:  {sunriseSunsetResult.Results.LastLight:T}\n"
+                    + $"Dawn:        {sunriseSunsetResult.Results.Dawn:T}\n"
+                    + $"Dusk:        {sunriseSunsetResult.Results.Dusk:T}\n"
+                    + $"Solar Noon:  {sunriseSunsetResult.Results.SolarNoon:T}\n"
+                    + $"Golden Hour: {sunriseSunsetResult.Results.GoldenHour:T}\n"
+                    + $"Day Length:  {sunriseSunsetResult.Results.DayLength}\n"
+                    + $"Time Zone:   {sunriseSunsetResult.Results.TimeZone}"
+            );
+        }
+
+        /// <summary>
         /// The entry point of the application.
         /// </summary>
         private static void Main()
@@ -135,7 +244,7 @@ namespace OpenAPIs.Client.Console
                     "Available API query options:\n"
                         + "[1] Look up places by post code\n"
                         + "[2] Look up post codes by place name\n"
-                        + "[3] \n"
+                        + "[3] Look up sunrise and sunset times by latitude and longitude\n"
                         + "[4] \n"
                         + "[5] \n"
                         + "[0] Exit\n"
@@ -155,6 +264,7 @@ namespace OpenAPIs.Client.Console
                         break;
 
                     case "3":
+                        LookUpSunriseSunset(_sunriseSunsetBL);
                         break;
 
                     case "4":
