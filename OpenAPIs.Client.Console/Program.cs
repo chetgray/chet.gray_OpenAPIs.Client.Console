@@ -1,4 +1,10 @@
-﻿using static System.Console;
+﻿using System;
+using System.Net.Http;
+
+using OpenAPIs.Client.Console.Business.Zippopotamus;
+using OpenAPIs.Client.Console.Models.Zippopotamus;
+
+using static System.Console;
 
 namespace OpenAPIs.Client.Console
 {
@@ -7,6 +13,7 @@ namespace OpenAPIs.Client.Console
         private static void Main()
         {
             ApiHelper.InitializeClient();
+            IZippopotamusBL zippopotamusBL = new ZippopotamusBL(ApiHelper.ApiClient);
 
             bool shouldContinue = true;
             while (shouldContinue)
@@ -21,12 +28,97 @@ namespace OpenAPIs.Client.Console
                 );
                 Write("Which API would you like to call?\n» ");
                 string menuInput = ReadLine();
+                string countryInput;
                 switch (menuInput)
                 {
                     case "1":
+                        // Look up place by post code
+                        Write("Enter a country code (e.g. GB, US, DE, etc.)\n» ");
+                        countryInput = ReadLine();
+                        Write("Enter a postal code\n» ");
+                        string postcodeInput = ReadLine();
+                        WriteLine();
+
+                        PostcodeResultModel postcodeResult;
+                        try
+                        {
+                            postcodeResult = zippopotamusBL
+                                .QueryPostcodeAsync(countryInput, postcodeInput)
+                                .Result;
+                        }
+                        catch (AggregateException aggEx)
+                        {
+                            aggEx
+                                .Flatten()
+                                .Handle(e =>
+                                {
+                                    if (e is HttpRequestException)
+                                    {
+                                        WriteLine($"ERROR: {e.Message}");
+                                    }
+                                    return e is HttpRequestException;
+                                });
+                            break;
+                        }
+                        WriteLine(
+                            $"Country:   {postcodeResult.Country} ({postcodeResult.CountryAbbreviation})\n"
+                                + $"Post code: {postcodeResult.Postcode}\n"
+                        );
+                        foreach (PostcodeResultPlace place in postcodeResult.Places)
+                        {
+                            WriteLine(
+                                $"Place name:    {place.Placename}\n"
+                                    + $"    State:     {place.State} ({place.StateAbbreviation})\n"
+                                    + $"    Latitude:  {place.Latitude}\n"
+                                    + $"    Longitude: {place.Longitude}\n"
+                            );
+                        }
                         break;
 
                     case "2":
+                        // Look up post codes by place name
+                        Write("Enter a country code (e.g. GB, US, DE, etc.)\n» ");
+                        countryInput = ReadLine();
+                        Write("Enter a state/province abbreviation\n» ");
+                        string stateInput = ReadLine();
+                        Write("Enter a place name\n» ");
+                        string placenameInput = ReadLine();
+                        WriteLine();
+
+                        PlacenameResultModel placenameResult;
+                        try
+                        {
+                            placenameResult = zippopotamusBL
+                                .QueryPlacenameAsync(countryInput, stateInput, placenameInput)
+                                .Result;
+                        }
+                        catch (AggregateException aggEx)
+                        {
+                            aggEx
+                                .Flatten()
+                                .Handle(e =>
+                                {
+                                    if (e is HttpRequestException)
+                                    {
+                                        WriteLine($"ERROR: {e.Message}");
+                                    }
+                                    return e is HttpRequestException;
+                                });
+                            break;
+                        }
+                        WriteLine(
+                            $"Country: {placenameResult.Country} ({placenameResult.CountryAbbreviation})\n"
+                                + $"State:   {placenameResult.State} ({placenameResult.StateAbbreviation})\n"
+                        );
+                        foreach (PlacenameResultPlace place in placenameResult.Places)
+                        {
+                            WriteLine(
+                                $"Postal code:    {place.Postcode}\n"
+                                    + $"    Place name: {place.Placename}\n"
+                                    + $"    Latitude:   {place.Latitude}\n"
+                                    + $"    Longitude:  {place.Longitude}\n"
+                            );
+                        }
                         break;
 
                     case "3":
