@@ -10,6 +10,10 @@ namespace OpenAPIs.Client.Console
 {
     internal static class Program
     {
+        private static readonly IZippopotamusBL _zippopotamusBL = new ZippopotamusBL(
+            ApiHelper.ApiClient
+        );
+
         /// <summary>
         /// Handles exceptions thrown by the API BL classes.
         /// </summary>
@@ -35,19 +39,101 @@ namespace OpenAPIs.Client.Console
         }
 
         /// <summary>
+        /// Prompts the user to enter a country code and postal code, then queries the
+        /// Zippopotamus API for the corresponding places and writes them to the console.
+        /// </summary>
+        private static void LookUpPlacesByPostCode(IZippopotamusBL bl)
+        {
+            Write("Enter a country code (e.g. GB, US, DE, etc.)\n» ");
+            string countryInput = ReadLine();
+            Write("Enter a postal code\n» ");
+            string postcodeInput = ReadLine();
+            WriteLine();
+
+            PostcodeResultModel postcodeResult;
+            try
+            {
+                postcodeResult = bl.QueryPostcodeAsync(countryInput, postcodeInput).Result;
+            }
+            catch (AggregateException aggEx)
+            {
+                aggEx.Flatten().Handle(HandleApiExceptions);
+                return;
+            }
+            WriteLine(
+                $"Country:   {postcodeResult.Country} ({postcodeResult.CountryAbbreviation})\n"
+                    + $"Post code: {postcodeResult.Postcode}"
+            );
+            foreach (PostcodeResultPlace place in postcodeResult.Places)
+            {
+                WriteLine(
+                    "\n"
+                        + $"Place name:    {place.Placename}\n"
+                        + $"    State:     {place.State} ({place.StateAbbreviation})\n"
+                        + $"    Latitude:  {place.Latitude}\n"
+                        + $"    Longitude: {place.Longitude}"
+                );
+            }
+        }
+
+        /// <summary>
+        /// Prompts the user to enter a country code, state/province abbreviation, and place
+        /// name, then queries the Zippopotamus API for the corresponding postal codes and
+        /// writes them to the console.
+        /// </summary>
+        private static void LookUpPostCodesByPlaceName(IZippopotamusBL bl)
+        {
+            Write("Enter a country code (e.g. GB, US, DE, etc.)\n» ");
+            string countryInput2 = ReadLine();
+            Write("Enter a state/province abbreviation\n» ");
+            string stateInput = ReadLine();
+            Write("Enter a place name\n» ");
+            string placenameInput = ReadLine();
+            WriteLine();
+
+            PlacenameResultModel placenameResult;
+            try
+            {
+                placenameResult = bl.QueryPlacenameAsync(
+                    countryInput2,
+                    stateInput,
+                    placenameInput
+                ).Result;
+            }
+            catch (AggregateException aggEx)
+            {
+                aggEx.Flatten().Handle(HandleApiExceptions);
+                return;
+            }
+            WriteLine(
+                $"Country: {placenameResult.Country} ({placenameResult.CountryAbbreviation})\n"
+                    + $"State:   {placenameResult.State} ({placenameResult.StateAbbreviation})"
+            );
+            foreach (PlacenameResultPlace place in placenameResult.Places)
+            {
+                WriteLine(
+                    "\n"
+                        + $"Postal code:    {place.Postcode}\n"
+                        + $"    Place name: {place.Placename}\n"
+                        + $"    Latitude:   {place.Latitude}\n"
+                        + $"    Longitude:  {place.Longitude}"
+                );
+            }
+        }
+
+        /// <summary>
         /// The entry point of the application.
         /// </summary>
         private static void Main()
         {
             ApiHelper.InitializeClient();
-            IZippopotamusBL zippopotamusBL = new ZippopotamusBL(ApiHelper.ApiClient);
 
             bool shouldContinue = true;
             while (shouldContinue)
             {
                 WriteLine(
                     "Available API query options:\n"
-                        + "[1] Look up place by post code\n"
+                        + "[1] Look up places by post code\n"
                         + "[2] Look up post codes by place name\n"
                         + "[3] \n"
                         + "[4] \n"
@@ -58,81 +144,14 @@ namespace OpenAPIs.Client.Console
                 string menuInput = ReadLine();
                 WriteLine();
 
-                string countryInput;
                 switch (menuInput)
                 {
                     case "1":
-                        // Look up place by post code
-                        Write("Enter a country code (e.g. GB, US, DE, etc.):\n» ");
-                        countryInput = ReadLine();
-                        Write("Enter a postal code:\n» ");
-                        string postcodeInput = ReadLine();
-                        WriteLine();
-
-                        PostcodeResultModel postcodeResult;
-                        try
-                        {
-                            postcodeResult = zippopotamusBL
-                                .QueryPostcodeAsync(countryInput, postcodeInput)
-                                .Result;
-                        }
-                        catch (AggregateException aggEx)
-                        {
-                            aggEx.Flatten().Handle(HandleApiExceptions);
-                            break;
-                        }
-                        WriteLine(
-                            $"Country:   {postcodeResult.Country} ({postcodeResult.CountryAbbreviation})\n"
-                                + $"Post code: {postcodeResult.Postcode}"
-                        );
-                        foreach (PostcodeResultPlace place in postcodeResult.Places)
-                        {
-                            WriteLine(
-                                "\n"
-                                    + $"Place name:    {place.Placename}\n"
-                                    + $"    State:     {place.State} ({place.StateAbbreviation})\n"
-                                    + $"    Latitude:  {place.Latitude}\n"
-                                    + $"    Longitude: {place.Longitude}"
-                            );
-                        }
+                        LookUpPlacesByPostCode(_zippopotamusBL);
                         break;
 
                     case "2":
-                        // Look up post codes by place name
-                        Write("Enter a country code (e.g. GB, US, DE, etc.):\n» ");
-                        countryInput = ReadLine();
-                        Write("Enter a state/province abbreviation:\n» ");
-                        string stateInput = ReadLine();
-                        Write("Enter a place name:\n» ");
-                        string placenameInput = ReadLine();
-                        WriteLine();
-
-                        PlacenameResultModel placenameResult;
-                        try
-                        {
-                            placenameResult = zippopotamusBL
-                                .QueryPlacenameAsync(countryInput, stateInput, placenameInput)
-                                .Result;
-                        }
-                        catch (AggregateException aggEx)
-                        {
-                            aggEx.Flatten().Handle(HandleApiExceptions);
-                            break;
-                        }
-                        WriteLine(
-                            $"Country: {placenameResult.Country} ({placenameResult.CountryAbbreviation})\n"
-                                + $"State:   {placenameResult.State} ({placenameResult.StateAbbreviation})"
-                        );
-                        foreach (PlacenameResultPlace place in placenameResult.Places)
-                        {
-                            WriteLine(
-                                "\n"
-                                    + $"Postal code:    {place.Postcode}\n"
-                                    + $"    Place name: {place.Placename}\n"
-                                    + $"    Latitude:   {place.Latitude}\n"
-                                    + $"    Longitude:  {place.Longitude}"
-                            );
-                        }
+                        LookUpPostCodesByPlaceName(_zippopotamusBL);
                         break;
 
                     case "3":
