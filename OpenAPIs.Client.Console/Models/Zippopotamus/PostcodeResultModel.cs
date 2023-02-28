@@ -9,10 +9,13 @@ namespace OpenAPIs.Client.Console.Models.Zippopotamus
     /// </summary>
     public class PostcodeResultModel
     {
+        [JsonProperty("country")]
         public string Country { get; set; }
 
         [JsonProperty("country abbreviation")]
         public string CountryAbbreviation { get; set; }
+
+        [JsonProperty("places")]
         public PostcodeResultPlace[] Places { get; set; }
 
         [JsonProperty("post code")]
@@ -24,12 +27,16 @@ namespace OpenAPIs.Client.Console.Models.Zippopotamus
     /// </summary>
     public class PostcodeResultPlace
     {
+        [JsonProperty("latitude")]
         public double? Latitude { get; set; }
+
+        [JsonProperty("longitude")]
         public double? Longitude { get; set; }
 
         [JsonProperty("place name")]
         public string Placename { get; set; }
 
+        [JsonProperty("state")]
         public string State { get; set; }
 
         [JsonProperty("state abbreviation")]
