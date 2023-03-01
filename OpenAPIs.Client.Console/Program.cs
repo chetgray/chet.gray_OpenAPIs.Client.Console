@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Net.Http;
 
+using OpenAPIs.Client.Console.Business.SevenTimer;
 using OpenAPIs.Client.Console.Business.SunriseSunset;
 using OpenAPIs.Client.Console.Business.Zippopotamus;
+using OpenAPIs.Client.Console.Models.SevenTimer;
 using OpenAPIs.Client.Console.Models.SunriseSunset;
 using OpenAPIs.Client.Console.Models.Zippopotamus;
 
@@ -12,6 +14,9 @@ namespace OpenAPIs.Client.Console
 {
     internal static class Program
     {
+        private static readonly ISevenTimerBL _sevenTimerBL = new SevenTimerBL(
+            ApiHelper.ApiClient
+        );
         private static readonly ISunriseSunsetBL _sunriseSunsetBL = new SunriseSunsetBL(
             ApiHelper.ApiClient
         );
@@ -251,6 +256,71 @@ namespace OpenAPIs.Client.Console
         }
 
         /// <summary>
+        /// Prompts the user to enter a latitude and a longitude, then queries the 7Timer! API
+        /// for the corresponding weather forecast and writes it to the console.
+        /// </summary>
+        private static void LookUpWeatherForecast(ISevenTimerBL sevenTimerBL)
+        {
+            Write("Enter a latitude:\n» ");
+            double latitude;
+            while (!double.TryParse(ReadLine(), out latitude))
+            {
+                WriteLine("ERROR: Invalid latitude format.");
+                Write("Enter a latitude:\n» ");
+            }
+            Write("Enter a longitude:\n» ");
+            double longitude;
+            while (!double.TryParse(ReadLine(), out longitude))
+            {
+                WriteLine("ERROR: Invalid longitude format.");
+                Write("Enter a longitude:\n» ");
+            }
+            WriteLine();
+
+            ForecastResultModel forecastResult;
+            try
+            {
+                forecastResult = sevenTimerBL
+                    .QueryAstroForecastAsync(latitude, longitude)
+                    .Result;
+            }
+            catch (AggregateException aggEx)
+            {
+                aggEx.Flatten().Handle(HandleApiExceptions);
+                return;
+            }
+            WriteLine($"Forecast initialized: {forecastResult.InitialDateTime:g}");
+            WriteLine(
+                string.Format(
+                    "{0,-18}{1,-14}{2,-8}{3,-11}{4,-10}{5,-31}",
+                    "Date & Time",
+                    "Cloud Cover",
+                    "Temp.",
+                    "Humidity",
+                    "Precip.",
+                    "Wind"
+                )
+            );
+            foreach (ForecastDataPoint dataPoint in forecastResult.DataPoints)
+            {
+                WriteLine(
+                    string.Format(
+                        "{0,-18:ddd M/d HH:mm}{1,-14}{2,-8}{3,-11}{4,-10}{5,-31}",
+                        forecastResult.InitialDateTime
+                            + TimeSpan.FromHours(dataPoint.TimeOffsetHours),
+                        ForecastResultModel.CloudCoverDescriptions[dataPoint.CloudCover],
+                        $"{dataPoint.Temperature2M}°C",
+                        ForecastResultModel.HumidityDescriptions[dataPoint.Humidity2M],
+                        dataPoint.PrecipitationType,
+                        $"{ForecastResultModel.WindSpeedCategories[dataPoint.Wind10M.Speed]}"
+                            + $" ({dataPoint.Wind10M.Direction}"
+                            + $" {ForecastResultModel.WindSpeedDescriptions[dataPoint.Wind10M.Speed]})"
+                    )
+                );
+            }
+        }
+
+        /// <summary>
         /// The entry point of the application.
         /// </summary>
         private static void Main()
@@ -265,7 +335,7 @@ namespace OpenAPIs.Client.Console
                         + "[1] Look up places by post code\n"
                         + "[2] Look up post codes by place name\n"
                         + "[3] Look up sunrise and sunset times by latitude and longitude\n"
-                        + "[4] \n"
+                        + "[4] Look up weather forecast by latitude and longitude\n"
                         + "[5] \n"
                         + "[0] Exit\n"
                 );
@@ -288,6 +358,7 @@ namespace OpenAPIs.Client.Console
                         break;
 
                     case "4":
+                        LookUpWeatherForecast(_sevenTimerBL);
                         break;
 
                     case "5":
