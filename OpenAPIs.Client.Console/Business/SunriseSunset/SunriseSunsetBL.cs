@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Globalization;
 using System.Net.Http;
 using System.Threading.Tasks;
 
 using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 
 using OpenAPIs.Client.Console.Models.SunriseSunset;
 
@@ -21,6 +23,13 @@ namespace OpenAPIs.Client.Console.Business.SunriseSunset
         public SunriseSunsetBL(HttpClient apiClient)
         {
             _apiClient = apiClient;
+            SerializerSettings.Converters.Add(
+                new IsoDateTimeConverter
+                {
+                    //DateTimeFormat = "h:mm:ss tt",
+                    DateTimeStyles = DateTimeStyles.NoCurrentDateDefault,
+                }
+            );
         }
 
         /// <summary>
