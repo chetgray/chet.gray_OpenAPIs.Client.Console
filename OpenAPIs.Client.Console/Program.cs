@@ -1,9 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Net.Http;
 
+using OpenAPIs.Client.Console.Business.OpenBrewery;
 using OpenAPIs.Client.Console.Business.SevenTimer;
 using OpenAPIs.Client.Console.Business.SunriseSunset;
 using OpenAPIs.Client.Console.Business.Zippopotamus;
+using OpenAPIs.Client.Console.Models.OpenBrewery;
 using OpenAPIs.Client.Console.Models.SevenTimer;
 using OpenAPIs.Client.Console.Models.SunriseSunset;
 using OpenAPIs.Client.Console.Models.Zippopotamus;
@@ -21,6 +24,9 @@ namespace OpenAPIs.Client.Console
             ApiHelper.ApiClient
         );
         private static readonly IZippopotamusBL _zippopotamusBL = new ZippopotamusBL(
+            ApiHelper.ApiClient
+        );
+        private static readonly IOpenBreweryBL _openBreweryBL = new OpenBreweryBL(
             ApiHelper.ApiClient
         );
 
@@ -321,6 +327,116 @@ namespace OpenAPIs.Client.Console
         }
 
         /// <summary>
+        /// Prompts the user to enter a latitude, a longitude, and an optional brewery type,
+        /// then queries the Open Brewery DB API for nearby breweries and writes them to the
+        /// console.
+        /// </summary>
+        private static void LookUpBreweriesByLocation(IOpenBreweryBL openBreweryBL)
+        {
+            Write("Enter a latitude:\n» ");
+            double latitude;
+            while (!double.TryParse(ReadLine(), out latitude))
+            {
+                WriteLine("ERROR: Invalid latitude format.");
+                Write("Enter a latitude:\n» ");
+            }
+            Write("Enter a longitude:\n» ");
+            double longitude;
+            while (!double.TryParse(ReadLine(), out longitude))
+            {
+                WriteLine("ERROR: Invalid longitude format.");
+                Write("Enter a longitude:\n» ");
+            }
+            // if blank, breweryType will be null
+            // if not blank, try to parse it into a BreweryType enum
+            // if it can't be parsed, ask again
+            BreweryType? breweryType = null;
+            bool isValidBreweryType = false;
+            while (!isValidBreweryType)
+            {
+                Write("(Optional) Enter a brewery type (default is all types):\n» ");
+                string breweryTypeInput = ReadLine();
+                if (string.IsNullOrWhiteSpace(breweryTypeInput))
+                {
+                    isValidBreweryType = true;
+                }
+                else if (
+                    Enum.TryParse(
+                        breweryTypeInput,
+                        ignoreCase: true,
+                        out BreweryType parsedBreweryType
+                    )
+                )
+                {
+                    breweryType = parsedBreweryType;
+                    isValidBreweryType = true;
+                }
+                else
+                {
+                    WriteLine("ERROR: Invalid brewery type.");
+                    WriteLine(
+                        "Valid brewery types: "
+                            + $"{string.Join(", ", Enum.GetNames(typeof(BreweryType)))}"
+                    );
+                }
+            }
+            WriteLine();
+
+            List<BreweryModel> breweries;
+            try
+            {
+                breweries = openBreweryBL
+                    .QueryBreweriesByLocationAsync(latitude, longitude, breweryType)
+                    .Result;
+            }
+            catch (AggregateException aggEx)
+            {
+                aggEx.Flatten().Handle(HandleApiExceptions);
+                return;
+            }
+            WriteLine(
+                $"{breweries.Count} brewer{(breweries.Count == 1 ? "y" : "ies")}"
+                    + $" nearest ({latitude}, {longitude}):"
+            );
+            foreach (BreweryModel brewery in breweries)
+            {
+                WriteLine();
+                Write(brewery.Name);
+                if (!(brewery.Type is null))
+                {
+                    Write($" ({brewery.Type})");
+                }
+                WriteLine();
+                if (!(brewery.Street is null))
+                {
+                    WriteLine(brewery.Street);
+                }
+                if (!(brewery.City is null))
+                {
+                    Write(brewery.City);
+                    if (!(brewery.State is null))
+                    {
+                        Write($", {brewery.State}");
+                    }
+                    if (!(brewery.Postcode is null))
+                    {
+                        Write($" {brewery.Postcode}");
+                    }
+                    WriteLine();
+                }
+                if (!(brewery.Phone is null))
+                {
+                    WriteLine(brewery.Phone);
+                }
+                if (!(brewery.WebsiteUri is null))
+                {
+                    WriteLine(brewery.WebsiteUri);
+                }
+                WriteLine($"Updated: {brewery.UpdateTime:g}");
+            }
+        }
+
+        /// <summary>
         /// The entry point of the application.
         /// </summary>
         private static void Main()
@@ -336,7 +452,7 @@ namespace OpenAPIs.Client.Console
                         + "[2] Look up post codes by place name\n"
                         + "[3] Look up sunrise and sunset times by latitude and longitude\n"
                         + "[4] Look up weather forecast by latitude and longitude\n"
-                        + "[5] \n"
+                        + "[5] Look up nearby breweries by latitude and longitude\n"
                         + "[0] Exit\n"
                 );
                 Write("Which API would you like to call?\n» ");
@@ -362,6 +478,7 @@ namespace OpenAPIs.Client.Console
                         break;
 
                     case "5":
+                        LookUpBreweriesByLocation(_openBreweryBL);
                         break;
 
                     case "0":

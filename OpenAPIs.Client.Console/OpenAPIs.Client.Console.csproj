@@ -38,6 +38,7 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -47,12 +48,15 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ApiHelper.cs" />
+    <Compile Include="Business\OpenBrewery\IOpenBreweryBL.cs" />
+    <Compile Include="Business\OpenBrewery\OpenBreweryBL.cs" />
     <Compile Include="Business\SevenTimer\ISevenTimerBL.cs" />
     <Compile Include="Business\SevenTimer\SevenTimerBL.cs" />
     <Compile Include="Business\SunriseSunset\ISunriseSunsetBL.cs" />
     <Compile Include="Business\SunriseSunset\SunriseSunsetBL.cs" />
     <Compile Include="Business\Zippopotamus\IZippopotamusBL.cs" />
     <Compile Include="Business\Zippopotamus\ZippopotamusBL.cs" />
+    <Compile Include="Models\OpenBrewery\BreweryModel.cs" />
     <Compile Include="Models\SevenTimer\ForecastResultModel.cs" />
     <Compile Include="Models\SunriseSunset\SunriseSunsetResultModel.cs" />
     <Compile Include="Models\Zippopotamus\PlacenameResultModel.cs" />
