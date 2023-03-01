@@ -178,6 +178,8 @@ namespace OpenAPIs.Client.Console
                 WriteLine("ERROR: Invalid longitude format.");
                 Write("Enter a longitude:\n» ");
             }
+
+            // Prompt for a date until either it's blank or it's a parsable date.
             string date = null;
             bool isValidDate = false;
             while (!isValidDate)
@@ -208,6 +210,8 @@ namespace OpenAPIs.Client.Console
                     WriteLine("ERROR: Invalid date format.");
                 }
             }
+
+            // Prompt for a time zone until either it's blank or it's a parsable time zone.
             TimeZoneInfo timeZone = null;
             bool isValidTimeZone = false;
             while (!isValidTimeZone)
@@ -347,9 +351,9 @@ namespace OpenAPIs.Client.Console
                 WriteLine("ERROR: Invalid longitude format.");
                 Write("Enter a longitude:\n» ");
             }
-            // if blank, breweryType will be null
-            // if not blank, try to parse it into a BreweryType enum
-            // if it can't be parsed, ask again
+
+            // Prompt for a brewery type until either it's blank or a parsable brewery type.
+            // If it doesn't parse, print the valid types from the Enum.
             BreweryType? breweryType = null;
             bool isValidBreweryType = false;
             while (!isValidBreweryType)
@@ -382,6 +386,7 @@ namespace OpenAPIs.Client.Console
             }
             WriteLine();
 
+            // If there are any missing values, skip them without writing a blank line.
             List<BreweryModel> breweries;
             try
             {
